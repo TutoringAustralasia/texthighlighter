@@ -876,6 +876,42 @@
         return el && el.nodeType === NODE_TYPE.ELEMENT_NODE && el.hasAttribute(DATA_ATTR);
     };
 
+    TextHighlighter.prototype.serializeHighlight = function (highlight) {
+        var refEl = this.el;
+
+        function getElementPath(el, refElement) {
+            var childNodes, path = [];
+
+            do {
+                childNodes = Array.prototype.slice.call(el.parentNode.childNodes);
+                path.unshift(childNodes.indexOf(el));
+                el = el.parentNode;
+            } while (el !== refElement || !el);
+
+            return path;
+        }
+
+        var offset  = 0; // Hl offset from previous sibling within parent node.
+        var length  = highlight.textContent.length;
+        var hlPath  = getElementPath(highlight, refEl);
+        var wrapper = highlight.cloneNode(true);
+
+        wrapper.innerHTML = '';
+        wrapper = wrapper.outerHTML;
+
+        if (highlight.previousSibling && highlight.previousSibling.nodeType === NODE_TYPE.TEXT_NODE) {
+            offset = highlight.previousSibling.length;
+        }
+
+        return {
+            wrapper: wrapper,
+            text: highlight.textContent,
+            path: hlPath.join(':'),
+            offset: offset,
+            length: length
+        }
+    }
+
     /**
      * Serializes all highlights in the element the highlighter is applied to.
      *
@@ -932,6 +968,36 @@
 
         return JSON.stringify(hlDescriptors);
     };
+
+    TextHighlighter.prototype.deserializeHighlight = function (hl) {
+        var self = this;
+        hl.path = hl.path.split(':');
+        var elIndex = hl.path.pop();
+        var node = self.el;
+        var hlNode, highlight, idx;
+
+        while (!!(idx = hl.path.shift())) {
+            node = node.childNodes[idx];
+        }
+
+        if (node.childNodes[elIndex-1] && node.childNodes[elIndex-1].nodeType === NODE_TYPE.TEXT_NODE) {
+            elIndex -= 1;
+        }
+
+        node = node.childNodes[elIndex];
+        hlNode = node.splitText(hl.offset);
+        hlNode.splitText(hl.length);
+
+        if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
+            dom(hlNode.nextSibling).remove();
+        }
+
+        if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
+            dom(hlNode.previousSibling).remove();
+        }
+
+        return dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+    }
 
     /**
      * Deserializes highlights.
