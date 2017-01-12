@@ -909,8 +909,8 @@
             path: hlPath.join(':'),
             offset: offset,
             length: length
-        }
-    }
+        };
+    };
 
     /**
      * Serializes all highlights in the element the highlighter is applied to.
@@ -997,7 +997,7 @@
         }
 
         return dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
-    }
+    };
 
     /**
      * Deserializes highlights.
