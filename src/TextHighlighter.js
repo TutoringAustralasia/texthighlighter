@@ -457,6 +457,19 @@
         el.removeEventListener('touchend', FUNCTION_BIND);
     }
 
+
+    function getElementPath(el, refElement) {
+        var childNodes, path = [];
+
+        do {
+            childNodes = Array.prototype.slice.call(el.parentNode.childNodes);
+            path.unshift(childNodes.indexOf(el));
+            el = el.parentNode;
+        } while (el !== refElement || !el);
+
+        return path;
+    }
+
     /**
      * Creates TextHighlighter instance and binds to given DOM elements.
      *
@@ -879,18 +892,6 @@
     TextHighlighter.prototype.serializeHighlight = function (highlight) {
         var refEl = this.el;
 
-        function getElementPath(el, refElement) {
-            var childNodes, path = [];
-
-            do {
-                childNodes = Array.prototype.slice.call(el.parentNode.childNodes);
-                path.unshift(childNodes.indexOf(el));
-                el = el.parentNode;
-            } while (el !== refElement || !el);
-
-            return path;
-        }
-
         var offset  = 0; // Hl offset from previous sibling within parent node.
         var length  = highlight.textContent.length;
         var hlPath  = getElementPath(highlight, refEl);
@@ -928,18 +929,6 @@
             highlights = highlights.chunks;
         }
 
-        function getElementPath(el, refElement) {
-            var childNodes, path = [];
-
-            do {
-                childNodes = Array.prototype.slice.call(el.parentNode.childNodes);
-                path.unshift(childNodes.indexOf(el));
-                el = el.parentNode;
-            } while (el !== refElement || !el);
-
-            return path;
-        }
-
         sortByDepth(highlights, false);
 
         highlights.forEach(function (highlight) {
@@ -974,7 +963,7 @@
         hl.path = hl.path.split(':');
         var elIndex = hl.path.pop();
         var node = self.el;
-        var hlNode, highlight, idx;
+        var hlNode, idx;
 
         while (!!(idx = hl.path.shift())) {
             node = node.childNodes[idx];
