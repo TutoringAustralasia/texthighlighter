@@ -996,68 +996,23 @@
      * @returns {Array} Array of deserialized highlights.
      * @memberof TextHighlighter
      */
-    TextHighlighter.prototype.deserializeHighlights = function (json) {
+    TextHighlighter.prototype.deserializeHighlights = function (hlDescriptors) {
         var highlights = [];
         var self = this;
-        var hlDescriptors;
 
-        if (!json) {
+        if (!hlDescriptors) {
             return highlights;
         }
 
-        try {
-            hlDescriptors = JSON.parse(json);
-        } catch (e) {
-            throw "Can't parse JSON: " + e;
-        }
-
-        function deserializationFn(hlDescriptor) {
-            var hl = {
-                wrapper: hlDescriptor[0],
-                text: hlDescriptor[1],
-                path: hlDescriptor[2].split(':'),
-                offset: hlDescriptor[3],
-                length: hlDescriptor[4]
-            };
-            var elIndex = hl.path.pop();
-            var node = self.el;
-            var hlNode, highlight, idx;
-
-            while (!!(idx = hl.path.shift())) {
-                node = node.childNodes[idx];
-            }
-
-            if (node.childNodes[elIndex-1] && node.childNodes[elIndex-1].nodeType === NODE_TYPE.TEXT_NODE) {
-                elIndex -= 1;
-            }
-
-            node = node.childNodes[elIndex];
-            hlNode = node.splitText(hl.offset);
-            hlNode.splitText(hl.length);
-
-            if (hlNode.nextSibling && !hlNode.nextSibling.nodeValue) {
-                dom(hlNode.nextSibling).remove();
-            }
-
-            if (hlNode.previousSibling && !hlNode.previousSibling.nodeValue) {
-                dom(hlNode.previousSibling).remove();
-            }
-
-            highlight = dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
-            highlights.push(highlight);
-        }
-
-        sortSerializedByDepth(hlDescriptors);
-
         hlDescriptors.forEach(function (hlDescriptor) {
             try {
-                deserializationFn(hlDescriptor);
+                highlights.push(this.deserializeHighlight(hlDescriptor));
             } catch (e) {
                 if (console && console.warn) {
                     console.warn("Can't deserialize highlight descriptor. Cause: " + e);
                 }
             }
-        });
+        }, this);
 
         return highlights;
     };
