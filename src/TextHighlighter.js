@@ -848,6 +848,9 @@
      *                                         to "first", will return first group.
      *                                         Default: false.
      *
+     * @param {string}      [params.timestamp] if set, will apply a filter on the TIMESTAMP_ATTR attribute of
+     *                                         highlights
+     *
      * @returns {Array}                        Array of highlights.
      * @memberof TextHighlighter
      */
@@ -858,7 +861,11 @@
             grouped: false, // or "first", last"
         });
 
-        var nodeList = params.container.querySelectorAll('[' + DATA_ATTR + ']');
+        var selector = '[' + DATA_ATTR + ']';
+        if (params.timestamp) {
+            selector = selector + '[' + TIMESTAMP_ATTR + '="' + params.timestamp + '"]';
+        }
+        var nodeList = params.container.querySelectorAll(selector);
         var highlights = Array.prototype.slice.call(nodeList);
 
         if (params.andSelf === true && params.container.hasAttribute(DATA_ATTR)) {
