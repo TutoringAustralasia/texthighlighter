@@ -960,6 +960,16 @@
 
     TextHighlighter.prototype.deserializeHighlight = function (hl) {
         var self = this;
+        if (hl instanceof Array) {
+            hl = {
+              wrapper: hl[0],
+              text: hl[1],
+              path: hl[2],
+              offset: hl[3],
+              length: hl[4]
+            };
+        }
+
         hl.path = hl.path.split(':');
         var elIndex = hl.path.pop();
         var node = self.el;
