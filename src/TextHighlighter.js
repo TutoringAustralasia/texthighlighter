@@ -509,6 +509,7 @@
         this.options = defaults(options, {
             enabled: true,
             color: '#ffff7b',
+            preventOverlapping: false,
             highlightedClass: 'highlighted',
             contextClass: 'highlighter-context',
             tagName: 'span',
@@ -567,11 +568,16 @@
             wrapper.setAttribute(TIMESTAMP_ATTR, timestamp);
 
             createdHighlights = this.highlightRange(range, wrapper);
-            normalizedHighlights = this.normalizeHighlights(createdHighlights);
+            console.log('option:', this.options.preventOverlapping);
+            if (this.options.preventOverlapping && createdHighlights.length > 1) {
+                var self = this;
+                createdHighlights.forEach(function (hl, i) { self.removeHighlights(hl); });
+            } else {
+                normalizedHighlights = this.normalizeHighlights(createdHighlights);
+                this.options.onAfterHighlight(range, normalizedHighlights, timestamp);
+            }
 
-            this.options.onAfterHighlight(range, normalizedHighlights, timestamp);
         }
-
         if (!keepRange) {
             dom(this.el).removeAllRanges();
         }
