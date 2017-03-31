@@ -498,6 +498,9 @@
      *
      * @param {function} options.onAfterHighlight  Function called after highlight is created. Array of created
      *                                             wrappers is passed as param.
+     *
+     * @param {function} options.onNoRangePresent  Function called before highlight is created and there was no
+     *                                             text range selected.
      * @class TextHighlighter
      */
     function TextHighlighter(element, options) {
@@ -515,7 +518,8 @@
             keepRange: false,
             onRemoveHighlight: function () { return true; },
             onBeforeHighlight: function () { return true; },
-            onAfterHighlight: function () { }
+            onAfterHighlight: function () { },
+            onNoRangePresent: function() { }
         });
 
         dom(this.el).addClass(this.options.contextClass);
@@ -558,6 +562,7 @@
         var wrapper, createdHighlights, normalizedHighlights, timestamp;
 
         if (!range || range.collapsed) {
+            this.options.onNoRangePresent();
             return;
         }
 
