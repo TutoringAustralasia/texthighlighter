@@ -517,6 +517,7 @@
       tagName: 'span',
       keepRange: false,
       mergeSiblings: true,
+      allowWhitespaceHighlights: false,
       onRemoveHighlight: function () { return true; },
       onBeforeHighlight: function () { return true; },
       onAfterHighlight: function () { },
@@ -609,7 +610,8 @@
     do {
       if (goDeeper && node.nodeType === NODE_TYPE.TEXT_NODE) {
 
-        if (IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 && node.nodeValue.trim() !== '') {
+        if (IGNORE_TAGS.indexOf(node.parentNode.tagName) === -1 &&
+           (node.nodeValue.trim() !== '' || (this.options.allowWhitespaceHighlights && node.nodeValue !== ''))) {
           wrapperClone = wrapper.cloneNode(true);
           wrapperClone.setAttribute(DATA_ATTR, !! this.options.color);
           nodeParent = node.parentNode;
