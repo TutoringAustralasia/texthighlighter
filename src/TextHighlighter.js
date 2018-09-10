@@ -1120,6 +1120,7 @@
   TextHighlighter.createWrapper = function (options) {
     var span = document.createElement(options.tagName);
     span.style.backgroundColor = options.color;
+    span.style.position = 'relative';
     span.className = options.highlightedClass;
     return span;
   };
