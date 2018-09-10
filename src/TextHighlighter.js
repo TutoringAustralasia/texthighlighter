@@ -996,7 +996,7 @@
       node = node.childNodes[idx];
     }
 
-    if (node.childNodes[elIndex-1] && node.childNodes[elIndex-1].nodeType === NODE_TYPE.TEXT_NODE) {
+    if (node.childNodes[elIndex - 1] && node.childNodes[elIndex - 1].nodeType === NODE_TYPE.TEXT_NODE) {
       elIndex -= 1;
     }
 
@@ -1012,7 +1012,11 @@
       dom(hlNode.previousSibling).remove();
     }
 
-    return dom(hlNode).wrap(dom().fromHTML(hl.wrapper)[0]);
+    var children = dom().fromHTML(hl.wrapper)[0];
+    if (children.style.position !== 'relative') {
+      children.style.position = 'relative';
+    }
+    return dom(hlNode).wrap(children);
   };
 
   /**
